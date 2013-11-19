@@ -1,14 +1,18 @@
 ##What is this?
 
-It's a grunt setup I use to build WordPress themes. This version compiles SCSS. It's also super-beta.
+It's a grunt setup I use to build WordPress themes. This version compiles SCSS. It's also super-beta, really only used on 2 projects so far.
 
 ##Why?
 
-So I don't have to repeatedly try to create a zip file that magically doesn't have `.DS_Store` in it. Also, this ensures I also don't accidentally add any grunt config, `node_modules`, or sass/less files.
+Mostly because I can. So I don't have to repeatedly try to create a zip file that magically doesn't have `.DS_Store` in it. Also, this ensures I also don't accidentally add any grunt config, `node_modules`, or sass/less files.
 
 ##How do I use it?
 
 This isn't really being released for other people, mostly so I can track my own changes. But, if you want to grab it to help with your process, that's awesome. Here's how I use it.
+
+###Starter theme
+
+I usually start with [_s](https://github.com/Automattic/_s/) + [sassy_s](https://github.com/sabreuse/sassy_s) (or something in LESS). Since `sassy_s/style.scss` is designed to compile down to `/style.css`, it makes sense to remove style.css in the source directory, so you won't have duplicate themes in the theme list. In this case, however, we're compiling `src/sassy_s/style.css` to `build/style.css`.
 
 ###Directory Structure
 
@@ -35,7 +39,3 @@ Do all your work in the src directory, and build to see it. Eventually I'll have
 The gruntfile's default task is `build`, which is `'clean:all', 'copy:all', 'sass:dist', 'clean:dist'`. This deletes the build directory, copies over all the source files (except a few excluded), runs Sass which compiles to `build/style.css`, and then goes back and deletes any source files that weren't excluded from the copy (this step can later be removed).
 
 The other task registered here is `publish`, which does all of `build`, and then creates a .zip file of the theme. 
-
-###More about style.css + starter themes
-
-In this case I started with [_s](https://github.com/Automattic/_s/) + [sassy_s](https://github.com/sabreuse/sassy_s). Since `sassy_s/style.scss` is designed to compile down to `/style.css`, it makes sense to remove style.css in the source directory.
