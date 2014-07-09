@@ -55,7 +55,7 @@ module.exports = function(grunt) {
 				cwd: SOURCE_DIR + 'sassy_s/',
 				dest: BUILD_DIR,
 				ext: '.css',
-				src: [ 'style.scss' ]
+				src: [ 'style.scss', 'editor-style.scss' ]
 			}
 		},
 
