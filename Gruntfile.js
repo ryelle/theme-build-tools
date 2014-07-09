@@ -1,6 +1,7 @@
 /* jshint node:true */
 module.exports = function(grunt) {
 	var path = require('path'),
+		WP_DIR = '/srv/www/wordpress-trunk',
 		SOURCE_DIR = 'src/',
 		BUILD_DIR = 'build/';
 
@@ -66,6 +67,18 @@ module.exports = function(grunt) {
 				],
 				dest: BUILD_DIR + 'assets/js/theme-name.js'
 			},
+		},
+
+		wp_theme_check: {
+			options: {
+				path: WP_DIR
+			},
+			theme: {
+				options: {
+					// Strip the trailing slash from BUILD_DIR.
+					theme: 'theme-name/' + BUILD_DIR.substr(0, str.length - 1);
+				}
+			}
 		},
 
 		compress: {
