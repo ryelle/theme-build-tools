@@ -59,6 +59,15 @@ module.exports = function(grunt) {
 			}
 		},
 
+		concat: {
+			dist: {
+				src: [
+					SOURCE_DIR + 'assets/js/src/*.js',
+				],
+				dest: BUILD_DIR + 'assets/js/theme-name.js'
+			},
+		},
+
 		compress: {
 			main: {
 				options: {
