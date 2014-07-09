@@ -18,10 +18,12 @@ module.exports = function(grunt) {
 				src: [
 					'node_modules',
 					'sassy_s',
-					'README.md'
+					'README.md',
+					'js/src'
 				]
 			}
 		},
+
 		copy: {
 			all: {
 				files: [{
@@ -31,6 +33,8 @@ module.exports = function(grunt) {
 					src: [
 						'**',
 						'!**/.{svn,git}/**', // Ignore version control directories.
+						'!**/*.map', // Ignore sourcemaps
+						'!.sass-cache',
 						'!.DS_Store',
 						'!package.json',
 						'!Gruntfile.js',
@@ -40,6 +44,7 @@ module.exports = function(grunt) {
 				}]
 			}
 		},
+
 		sass: {
 			dist: {
 				options: {
