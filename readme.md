@@ -1,6 +1,37 @@
 ##What is this?
 
-It's a grunt setup I use to build WordPress themes. This version compiles SCSS. It's also super-beta, really only used on 2 projects so far.
+It's a grunt setup for building WordPress themes.
+
+###What's in it?
+
+[grunt-contrib-sass](https://www.npmjs.org/package/grunt-contrib-sass), [grunt-contrib-concat](https://www.npmjs.org/package/grunt-contrib-concat), [grunt-contrib-watch](https://www.npmjs.org/package/grunt-contrib-watch), [grunt-contrib-clean](https://www.npmjs.org/package/grunt-contrib-clean), [grunt-contrib-copy](https://www.npmjs.org/package/grunt-contrib-copy), [grunt-contrib-compress](https://www.npmjs.org/package/grunt-contrib-compress), [grunt-wp-theme-check](https://github.com/ryelle/grunt-wp-theme-check)
+
+Check out the [Gruntfile](https://github.com/ryelle/Grunt-Theme-Builder/blob/master/Gruntfile.js) to see the exact tasks, or one of the following projects where I use this:
+
+- [Museum's Gruntfile](https://github.com/ryelle/museum/blob/master/Gruntfile.js), modified for LESS (css preprocessor).
+- [Umbra's Gruntfile](https://github.com/ryelle/umbra/blob/master/Gruntfile.js) (actively in development, has both `dist` and `dev` targets for rapid building into src directory) 
+
+###Requirements
+
+**For Sass**: [You'll need ruby and the sass gem installed](https://www.npmjs.org/package/grunt-contrib-sass#sass-task).
+
+**For Theme Check**: You'll need [my version of the Theme Check plugin](https://github.com/ryelle/theme-check), as it includes the WP-CLI command that the grunt task looks for.
+
+###The Tasks
+
+#### `build`
+
+	'clean:all', 'copy:all', 'concat:dist', 'sass:dist', 'clean:dist'
+
+This wipes the `BUILD_DIR`, copies all `SOURCE_DIR` files (with exceptions), concatenates the theme's javascript, processes the sass files into `style.css` and `editor-style.css`, then cleans up any remaining files that shouldn't be in build.
+
+#### `publish`
+
+	'build', 'wp_theme_check:theme', 'compress:main'
+
+This does everything `build` does, then runs theme-check, and if that passes (or if you `--force` it), runs compress, which builds the theme zip.
+
+---
 
 ##Why?
 
@@ -33,9 +64,3 @@ I assume the directory structure is:
 Since WordPress is smart enough to look into folders for your theme, it'll find your theme's `style.css` in the build directory, and display that as the available theme. Activating the theme will run it out of the build directory, and assuming you use the core functions for all your linking of things (`get_template_directory_uri`, etc), everything will work just fine.
 
 Do all your work in the src directory, and build to see it. Eventually I'll have a watch task that works for files in addition to Sass.
-
-###What's actually going on?
-
-The gruntfile's default task is `build`, which is `'clean:all', 'copy:all', 'sass:dist', 'clean:dist'`. This deletes the build directory, copies over all the source files (except a few excluded), runs Sass which compiles to `build/style.css`, and then goes back and deletes any source files that weren't excluded from the copy (this step can later be removed).
-
-The other task registered here is `publish`, which does all of `build`, and then creates a .zip file of the theme. 
