@@ -103,8 +103,8 @@ module.exports = function(grunt) {
 	// Register tasks.
 
 	// Build task.
-	grunt.registerTask('build', ['clean:all', 'copy:all', 'sass:dist', 'clean:dist' ]);
-	grunt.registerTask('publish', ['build', 'compress:main']);
+	grunt.registerTask('build', ['clean:all', 'copy:all', 'concat:dist', 'sass:dist', 'clean:dist' ]);
+	grunt.registerTask('publish', ['build', 'wp_theme_check:theme', 'compress:main']);
 
 	// Default task.
 	grunt.registerTask('default', ['build']);
