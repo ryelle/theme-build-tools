@@ -71,7 +71,7 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			colors: {
+			dev: {
 				files: [SOURCE_DIR + 'sassy_s/**'],
 				tasks: ['sass:dist']
 			}
