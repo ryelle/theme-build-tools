@@ -1,6 +1,8 @@
 ##What is this?
 
-It's a grunt setup for building WordPress themes.
+It's a grunt setup for building WordPress themes, mainly. It also includes these other automation tools:
+
+- Codesniffer ruleset
 
 ###What's in it?
 
