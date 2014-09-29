@@ -2,6 +2,7 @@
 module.exports = function(grunt) {
 	var path = require('path'),
 		WP_DIR = '/srv/www/wordpress-trunk',
+		THEME_NAME = 'theme-name',
 		SOURCE_DIR = 'src/',
 		BUILD_DIR = 'build/';
 
@@ -17,10 +18,11 @@ module.exports = function(grunt) {
 				expand: true,
 				cwd: BUILD_DIR,
 				src: [
+					// Any source files that should not be in the built package
 					'node_modules',
-					'sassy_s',
-					'README.md',
-					'js/src'
+					'sass', // Remove source Sass
+					'js/src', // Remove source JS
+					'.sass-cache'
 				]
 			}
 		},
@@ -35,11 +37,12 @@ module.exports = function(grunt) {
 						'**',
 						'!**/.{svn,git}/**', // Ignore version control directories.
 						'!**/*.map', // Ignore sourcemaps
-						'!.sass-cache',
 						'!.DS_Store',
-						'!package.json',
+						'!.gitignore',
+						'!.sass-cache',
 						'!Gruntfile.js',
-						'!node_modules'
+						'!node_modules',
+						'!package.json'
 					],
 					dest: BUILD_DIR
 				}]
@@ -47,13 +50,24 @@ module.exports = function(grunt) {
 		},
 
 		sass: {
-			dist: {
+			dev: {
 				options: {
-					noCache: true,
+					noCache: false,
 					sourcemap: true
 				},
 				expand: true,
-				cwd: SOURCE_DIR + 'sassy_s/',
+				cwd: SOURCE_DIR + 'sass/',
+				dest: SOURCE_DIR,
+				ext: '.css',
+				src: [ 'style.scss', 'editor-style.scss' ]
+			},
+			dist: {
+				options: {
+					noCache: true,
+					sourcemap: false
+				},
+				expand: true,
+				cwd: SOURCE_DIR + 'sass/',
 				dest: BUILD_DIR,
 				ext: '.css',
 				src: [ 'style.scss', 'editor-style.scss' ]
@@ -61,22 +75,55 @@ module.exports = function(grunt) {
 		},
 
 		concat: {
-			dist: {
-				src: [
-					SOURCE_DIR + 'assets/js/src/*.js',
-				],
-				dest: BUILD_DIR + 'assets/js/theme-name.js'
+			dev: {
+				src: [ SOURCE_DIR + 'js/src/*.js' ],
+				dest: SOURCE_DIR + 'js/' + THEME_NAME + '.js'
 			},
+			dist: {
+				src: [ SOURCE_DIR + 'js/src/*.js' ],
+				dest: BUILD_DIR + 'js/' + THEME_NAME + '.js'
+			}
+		},
+
+		makepot: {
+			dev: {
+				options: {
+					cwd: SOURCE_DIR,
+					domainPath: '/languages',
+					mainFile: 'style.css',
+					potFilename: THEME_NAME + '.pot',
+					potHeaders: {
+						poedit: true,
+						'x-poedit-keywordslist': true
+					},
+					type: 'wp-theme',
+					updateTimestamp: false
+				}
+			},
+			dist: {
+				options: {
+					cwd: BUILD_DIR,
+					domainPath: '/languages',
+					mainFile: 'style.css',
+					potFilename: THEME_NAME + '.pot',
+					potHeaders: {
+						poedit: true,
+						'x-poedit-keywordslist': true
+					},
+					type: 'wp-theme',
+					updateTimestamp: false
+				}
+			}
 		},
 
 		wp_theme_check: {
 			options: {
 				path: WP_DIR
 			},
-			theme: {
+			dist: {
 				options: {
 					// Strip the trailing slash from BUILD_DIR.
-					theme: 'theme-name/' + BUILD_DIR.substr(0, str.length - 1);
+					theme: THEME_NAME + '/' + BUILD_DIR.substr(0, str.length - 1);
 				}
 			}
 		},
@@ -84,7 +131,7 @@ module.exports = function(grunt) {
 		compress: {
 			main: {
 				options: {
-					archive: 'theme-name.zip'
+					archive: THEME_NAME + '.zip'
 				},
 				files: [
 					{expand: true, cwd: BUILD_DIR, src: ['**'], dest: '/'}
@@ -92,10 +139,15 @@ module.exports = function(grunt) {
 			}
 		},
 
+		// Watch in the SOURCE_DIR and compile to source, for rapid development
 		watch: {
-			dev: {
-				files: [SOURCE_DIR + 'sassy_s/**'],
+			css: {
+				files: [SOURCE_DIR + 'sass/**'],
 				tasks: ['sass:dist']
+			},
+			js: {
+				files: [SOURCE_DIR + 'js/src/**'],
+				tasks: ['concat:dev']
 			}
 		}
 	});
@@ -103,10 +155,16 @@ module.exports = function(grunt) {
 	// Register tasks.
 
 	// Build task.
-	grunt.registerTask('build', ['clean:all', 'copy:all', 'concat:dist', 'sass:dist', 'clean:dist' ]);
-	grunt.registerTask('publish', ['build', 'wp_theme_check:theme', 'compress:main']);
+	grunt.registerTask('dev',     ['sass:dev', 'concat:dev', 'makepot:dev']);
+	grunt.registerTask('build',   ['clean:all', 'copy:all', 'sass:dist', 'concat:dist', 'clean:dist']);
+	grunt.registerTask('test',    ['wp_theme_check:dist']);
+
+	// Build the theme, generate the .POT file, then test. If successful, zip the theme for upload.
+	grunt.registerTask('publish', ['build', 'makepot:dist', 'test', 'compress:main']);
 
 	// Default task.
-	grunt.registerTask('default', ['build']);
+	//  Defaults to 'dev' for quick development (builds into src dir),
+	//  allowing for small tweaks without rebuilding the entire theme.
+	grunt.registerTask('default', ['dev']);
 
 };
